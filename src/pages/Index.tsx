@@ -8,10 +8,12 @@ import { SmartSuggestions } from '@/components/SmartSuggestions';
 import { ApiDocViewer } from '@/components/ApiDocViewer';
 import { CodeFlowVisualization } from '@/components/CodeFlowVisualization';
 import { FloatingChatBot } from '@/components/FloatingChatBot';
+import { DocumentDropdown } from '@/components/DocumentDropdown';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
-import { Sparkles, FileText, Code, Network, ArrowLeft, ArrowRight, Home } from 'lucide-react';
+import { Sparkles, FileText, Code, Network, ArrowLeft, ArrowRight, Home, GraduationCap } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import analysisIcon from '@/assets/analysis-icon.png';
 import previewIcon from '@/assets/preview-icon.png';
@@ -39,6 +41,8 @@ const Index = () => {
   const [combinedTabs, setCombinedTabs] = useState<string[]>([]);
   const [history, setHistory] = useState<string[]>(['home']);
   const [historyIndex, setHistoryIndex] = useState(0);
+  const [selectedDocument, setSelectedDocument] = useState<{ name: string; content: string } | undefined>();
+  const [showTransition, setShowTransition] = useState(false);
   const { toast } = useToast();
 
   const navigateTo = useCallback((location: string) => {
@@ -115,8 +119,15 @@ const Index = () => {
   };
 
   const autoGenerateReadme = async () => {
-    setHasStarted(true);
-    setIsLoading(true);
+    setShowTransition(true);
+    
+    setTimeout(() => {
+      setShowTransition(false);
+      setHasStarted(true);
+      setIsLoading(true);
+    }, 1200);
+
+    setTimeout(async () => {
 
     try {
       const fileData = await Promise.all(
@@ -188,6 +199,7 @@ const Index = () => {
       ];
       
       setDocuments(docs);
+      setSelectedDocument(docs[0]);
       setSuggestions(data.suggestions || []);
       
       toast({
@@ -205,6 +217,7 @@ const Index = () => {
     } finally {
       setIsLoading(false);
     }
+    }, 1200);
   };
 
   const startInterview = async () => {
@@ -391,7 +404,14 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
+      {/* Transition Animation */}
+      {showTransition && (
+        <div className="fixed inset-0 z-[100] bg-background flex items-center justify-center">
+          <GraduationCap className="w-32 h-32 text-accent animate-zoom-in" />
+        </div>
+      )}
+
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-lg shrink-0">
         <div className="chat-container">
@@ -425,22 +445,23 @@ const Index = () => {
               </Button>
               <button 
                 onClick={goHome}
-                className="flex items-center gap-2 hover:opacity-80 transition-opacity ml-2"
+                className="flex items-center gap-2 hover:opacity-80 transition-all duration-300 ml-2 group"
               >
-                <Sparkles className="w-5 h-5" />
-                <span className="font-semibold">NarratO</span>
+                <Sparkles className="w-5 h-5 text-accent group-hover:rotate-180 transition-transform duration-500" />
+                <span className="font-semibold bg-gradient-to-r from-[hsl(var(--lovable-purple))] to-[hsl(var(--lovable-pink))] bg-clip-text text-transparent">NarratO</span>
               </button>
             </div>
-            {documents.length > 0 && (
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={downloadAllDocuments}
-                className="rounded-full"
-              >
-                Download Docs
-              </Button>
-            )}
+            <div className="flex items-center gap-3">
+              {documents.length > 0 && (
+                <DocumentDropdown
+                  documents={documents}
+                  onSelectDocument={setSelectedDocument}
+                  selectedDocument={selectedDocument}
+                  onDownloadAll={downloadAllDocuments}
+                />
+              )}
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       </header>
@@ -450,11 +471,15 @@ const Index = () => {
         {!hasStarted ? (
           <div className="chat-container py-12 space-y-8">
             {/* Hero */}
-            <div className="text-center space-y-4 py-12 animate-fade-in">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-                AI Documentation Assistant
+            <div className="text-center space-y-4 py-12 animate-fade-in relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--lovable-purple)/0.1)] via-transparent to-[hsl(var(--lovable-pink)/0.1)] animate-shimmer" />
+              <GraduationCap className="w-20 h-20 mx-auto text-accent mb-6 animate-float" />
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight relative z-10">
+                <span className="bg-gradient-to-r from-[hsl(var(--lovable-purple))] to-[hsl(var(--lovable-pink))] bg-clip-text text-transparent">
+                  AI Documentation Assistant
+                </span>
               </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto relative z-10">
                 Upload your code and let AI create professional documentation automatically
               </p>
             </div>
@@ -589,7 +614,13 @@ const Index = () => {
                         </Button>
                       </div>
                       <div className="flex-1 modern-card overflow-y-auto p-6">
-                        {documents.length > 0 ? (
+                        {selectedDocument ? (
+                          <div className="prose dark:prose-invert max-w-none">
+                            <pre className="whitespace-pre-wrap bg-muted/50 p-6 rounded-lg border border-border">
+                              {selectedDocument.content}
+                            </pre>
+                          </div>
+                        ) : documents.length > 0 ? (
                           <MultiFilePreview documents={documents} />
                         ) : (
                           <div className="flex items-center justify-center h-full text-center">
@@ -609,7 +640,7 @@ const Index = () => {
                           + Combine with API
                         </Button>
                       </div>
-                      <div className="flex-1 overflow-hidden">
+                      <div className="flex-1 overflow-hidden modern-card">
                         <CodeFlowVisualization files={files} />
                       </div>
                     </TabsContent>
@@ -737,31 +768,31 @@ const Index = () => {
         <footer className="border-t border-border py-12">
           <div className="chat-container">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-              <div className="text-center space-y-3 animate-fade-in">
-                <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center">
-                  <Sparkles className="w-8 h-8 text-primary" />
+              <div className="text-center space-y-3 animate-fade-in group cursor-pointer">
+                <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-[hsl(var(--lovable-purple)/0.2)] to-[hsl(var(--lovable-pink)/0.2)] flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-accent/30">
+                  <Sparkles className="w-8 h-8 text-accent group-hover:rotate-180 transition-transform duration-500" />
                 </div>
-                <h3 className="text-lg font-semibold">Smart Analysis</h3>
+                <h3 className="text-lg font-semibold group-hover:text-accent transition-colors duration-300">Smart Analysis</h3>
                 <p className="text-sm text-muted-foreground">
                   AI analyzes your code structure, dependencies, and patterns
                 </p>
               </div>
               
-              <div className="text-center space-y-3 animate-fade-in" style={{ animationDelay: '100ms' }}>
-                <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center">
-                  <FileText className="w-8 h-8 text-primary" />
+              <div className="text-center space-y-3 animate-fade-in group cursor-pointer" style={{ animationDelay: '100ms' }}>
+                <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-[hsl(var(--lovable-purple)/0.2)] to-[hsl(var(--lovable-pink)/0.2)] flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-accent/30">
+                  <FileText className="w-8 h-8 text-accent group-hover:scale-110 transition-transform duration-300" />
                 </div>
-                <h3 className="text-lg font-semibold">Live Preview</h3>
+                <h3 className="text-lg font-semibold group-hover:text-accent transition-colors duration-300">Live Preview</h3>
                 <p className="text-sm text-muted-foreground">
                   Watch documentation build in real-time with instant preview
                 </p>
               </div>
               
-              <div className="text-center space-y-3 animate-fade-in" style={{ animationDelay: '200ms' }}>
-                <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center">
-                  <Code className="w-8 h-8 text-primary" />
+              <div className="text-center space-y-3 animate-fade-in group cursor-pointer" style={{ animationDelay: '200ms' }}>
+                <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-[hsl(var(--lovable-purple)/0.2)] to-[hsl(var(--lovable-pink)/0.2)] flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-accent/30">
+                  <Code className="w-8 h-8 text-accent group-hover:scale-110 transition-transform duration-300" />
                 </div>
-                <h3 className="text-lg font-semibold">Complete API Docs</h3>
+                <h3 className="text-lg font-semibold group-hover:text-accent transition-colors duration-300">Complete API Docs</h3>
                 <p className="text-sm text-muted-foreground">
                   Generate comprehensive API docs with endpoints and examples
                 </p>

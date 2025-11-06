@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MessageCircle, X, Send } from 'lucide-react';
+import { Sparkles, X, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -74,10 +74,10 @@ export const FloatingChatBot = () => {
       {!isOpen && (
         <Button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl z-50 bg-gradient-to-br from-[hsl(var(--lovable-purple))] to-[hsl(var(--lovable-pink))] hover:shadow-[var(--glow-accent)] transition-all duration-300 hover:scale-110"
+          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl z-50 bg-gradient-to-br from-[hsl(var(--lovable-purple))] to-[hsl(var(--lovable-pink))] hover:shadow-[var(--glow-accent)] transition-all duration-300 hover:scale-110 animate-pulse-subtle"
           size="icon"
         >
-          <MessageCircle className="h-6 w-6" />
+          <Sparkles className="h-6 w-6 animate-spin-slow" />
         </Button>
       )}
 
@@ -88,7 +88,7 @@ export const FloatingChatBot = () => {
           <div className="p-4 border-b border-border bg-gradient-to-r from-[hsl(var(--lovable-purple))] to-[hsl(var(--lovable-pink))] flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <MessageCircle className="w-5 h-5 text-white" />
+                <Sparkles className="w-5 h-5 text-white animate-pulse" />
               </div>
               <div>
                 <h3 className="font-semibold text-white text-sm">NarratO Assistant</h3>
