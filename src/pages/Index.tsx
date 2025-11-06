@@ -7,6 +7,7 @@ import { PersonaSelector } from '@/components/PersonaSelector';
 import { SmartSuggestions } from '@/components/SmartSuggestions';
 import { ApiDocViewer } from '@/components/ApiDocViewer';
 import { CodeFlowVisualization } from '@/components/CodeFlowVisualization';
+import { FloatingChatBot } from '@/components/FloatingChatBot';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
@@ -504,11 +505,11 @@ const Index = () => {
           <div className="chat-container py-8 space-y-6">
             {qualityScore > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="modern-card p-4 h-32">
+                <div className="modern-card p-4 min-h-[140px]">
                   <QualityScore score={qualityScore} />
                 </div>
                 {suggestions.length > 0 && (
-                  <div className="modern-card p-4 h-32 overflow-y-auto">
+                  <div className="modern-card p-4 min-h-[140px] max-h-[200px] overflow-y-auto">
                     <SmartSuggestions suggestions={suggestions} />
                   </div>
                 )}
@@ -685,7 +686,7 @@ const Index = () => {
                       {combinedTabs.includes('flow') && (
                         <>
                           <ResizablePanel defaultSize={50} minSize={30}>
-                            <div className="h-full flex flex-col">
+                            <div className="h-full modern-card overflow-hidden flex flex-col">
                               <div className="p-2 border-b border-border bg-muted/50 shrink-0 flex items-center justify-between">
                                 <span className="text-sm font-medium">Code Flow</span>
                                 <Button size="sm" variant="ghost" onClick={() => setCombinedTabs(combinedTabs.filter(t => t !== 'flow'))}>
@@ -727,6 +728,9 @@ const Index = () => {
           </div>
         )}
       </main>
+
+      {/* Floating ChatBot */}
+      <FloatingChatBot />
 
       {/* Footer */}
       {!hasStarted && (

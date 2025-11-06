@@ -26,24 +26,31 @@ All colors MUST be HSL.
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
 
-    --accent: 0 0% 96%;
-    --accent-foreground: 0 0% 9%;
+    --accent: 262 80% 65%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 0 0% 90%;
     --input: 0 0% 90%;
-    --ring: 0 0% 9%;
+    --ring: 262 80% 65%;
 
     --radius: 0.75rem;
 
+    /* Lovable-inspired accent colors */
+    --lovable-purple: 262 80% 65%;
+    --lovable-pink: 330 85% 65%;
+    --lovable-blue: 217 91% 60%;
+
     /* Modern, minimal design tokens */
     --gradient-subtle: linear-gradient(180deg, hsl(0 0% 99%) 0%, hsl(0 0% 97%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(var(--lovable-purple)) 0%, hsl(var(--lovable-pink)) 100%);
     --shadow-sm: 0 1px 3px hsl(0 0% 0% / 0.05);
     --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.05), 0 2px 4px -2px hsl(0 0% 0% / 0.05);
     --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.05), 0 4px 6px -4px hsl(0 0% 0% / 0.05);
     --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.05), 0 8px 10px -6px hsl(0 0% 0% / 0.05);
+    --glow-accent: 0 0 20px hsl(var(--lovable-purple) / 0.3);
   }
 
   .dark {
@@ -65,7 +72,7 @@ All colors MUST be HSL.
     --muted: 0 0% 15%;
     --muted-foreground: 0 0% 64%;
 
-    --accent: 0 0% 15%;
+    --accent: 262 80% 65%;
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62% 50%;
@@ -73,7 +80,12 @@ All colors MUST be HSL.
 
     --border: 0 0% 20%;
     --input: 0 0% 20%;
-    --ring: 0 0% 83%;
+    --ring: 262 80% 65%;
+
+    /* Lovable-inspired accent colors */
+    --lovable-purple: 262 80% 65%;
+    --lovable-pink: 330 85% 65%;
+    --lovable-blue: 217 91% 60%;
 
     /* Flow chart node colors */
     --blue-node: 217 91% 60%;
@@ -84,10 +96,12 @@ All colors MUST be HSL.
 
     /* Dark mode shadows */
     --gradient-subtle: linear-gradient(180deg, hsl(0 0% 10%) 0%, hsl(0 0% 8%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(var(--lovable-purple)) 0%, hsl(var(--lovable-pink)) 100%);
     --shadow-sm: 0 1px 3px hsl(0 0% 0% / 0.3);
     --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.3), 0 2px 4px -2px hsl(0 0% 0% / 0.3);
     --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.3), 0 4px 6px -4px hsl(0 0% 0% / 0.3);
     --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.3), 0 8px 10px -6px hsl(0 0% 0% / 0.3);
+    --glow-accent: 0 0 30px hsl(var(--lovable-purple) / 0.5);
   }
 }
 
