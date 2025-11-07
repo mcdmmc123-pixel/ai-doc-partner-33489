@@ -384,8 +384,75 @@ export function deactivate() {}
 
 ## Notes
 
-- The current web app serves as the webview UI
+- The web app **is now iframe-ready** with VS Code webview API integration built-in
 - Use VS Code API to access file system instead of file uploads
+- The app automatically detects when running in VS Code and enables special features
+- State persists across webview reloads using VS Code state API
 - Implement proper error handling and logging
 - Consider performance with large workspaces
 - Add extension configuration in VS Code settings
+
+## 🔒 Content Security Policy (CSP)
+
+When bundling the app in your extension's webview, configure CSP in your webview provider:
+
+```typescript
+const csp = `
+  default-src 'none';
+  style-src ${webview.cspSource} 'unsafe-inline' https://fonts.googleapis.com;
+  font-src ${webview.cspSource} https://fonts.gstatic.com;
+  script-src ${webview.cspSource} 'unsafe-inline';
+  img-src ${webview.cspSource} data: https:;
+  connect-src ${webview.cspSource} https://*.supabase.co;
+`;
+```
+
+**Key CSP settings:**
+- Allow Google Fonts (already HTTPS)
+- Allow Supabase connections for AI features
+- `'unsafe-inline'` for Vite-generated inline scripts (unavoidable)
+- `data:` for base64 images
+
+## 📦 Building for Extension
+
+1. **Build the web app:**
+   ```bash
+   npm run build
+   ```
+
+2. **Copy `dist/` to extension:**
+   ```bash
+   cp -r dist/ extension/webview-dist/
+   ```
+
+3. **Reference in webview provider:**
+   ```typescript
+   const distPath = vscode.Uri.joinPath(context.extensionUri, 'webview-dist');
+   const htmlPath = vscode.Uri.joinPath(distPath, 'index.html');
+   ```
+
+## 🔌 VS Code API Integration (Already Built-in!)
+
+The app automatically:
+- ✅ Detects VS Code context via `isVSCode()`
+- ✅ Communicates with extension via `sendMessageToVSCode()`
+- ✅ Listens for messages via `onVSCodeMessage()`
+- ✅ Persists state via `saveState()` / `getState()`
+
+**Example extension-to-webview message:**
+```typescript
+// In extension
+panel.webview.postMessage({
+  type: 'filesFromWorkspace',
+  files: workspaceFiles
+});
+```
+
+**Example webview-to-extension message:**
+```typescript
+// In webview (automatic via built-in integration)
+sendMessageToVSCode({
+  type: 'analyzeFiles',
+  files: uploadedFiles
+});
+```

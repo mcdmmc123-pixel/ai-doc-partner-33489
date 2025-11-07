@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { FileUpload } from '@/components/FileUpload';
 import { ChatInterface } from '@/components/ChatInterface';
 import { MultiFilePreview } from '@/components/MultiFilePreview';
@@ -21,6 +21,7 @@ import apiIcon from '@/assets/api-icon.png';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { generateReadme, generateContributing, generateApiReference, generateInstallationGuide } from '@/lib/documentTemplates';
+import { isVSCode, onVSCodeMessage, sendMessageToVSCode, saveState, getState } from '@/lib/vscode';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -44,6 +45,30 @@ const Index = () => {
   const [selectedDocument, setSelectedDocument] = useState<{ name: string; content: string } | undefined>();
   const [showTransition, setShowTransition] = useState(false);
   const { toast } = useToast();
+  const inVSCode = isVSCode();
+
+  // Restore state and listen for VS Code messages
+  useEffect(() => {
+    if (inVSCode) {
+      const savedState = getState();
+      if (savedState) {
+        if (savedState.files) setFiles(savedState.files);
+        if (savedState.documents) setDocuments(savedState.documents);
+        if (savedState.hasStarted) setHasStarted(savedState.hasStarted);
+        if (savedState.qualityScore) setQualityScore(savedState.qualityScore);
+      }
+      
+      const cleanup = onVSCodeMessage((message) => {
+        if (message.type === 'filesFromWorkspace') {
+          handleFilesUploaded(message.files);
+        } else if (message.type === 'analyzeCode') {
+          autoGenerateReadme();
+        }
+      });
+      
+      return cleanup;
+    }
+  }, [inVSCode]);
 
   const navigateTo = useCallback((location: string) => {
     const newHistory = history.slice(0, historyIndex + 1);
@@ -112,6 +137,12 @@ const Index = () => {
 
   const handleFilesUploaded = async (uploadedFiles: File[]) => {
     setFiles(uploadedFiles);
+    
+    if (inVSCode) {
+      saveState({ files: uploadedFiles, hasStarted });
+      sendMessageToVSCode({ type: 'analyzeFiles', files: uploadedFiles });
+    }
+    
     toast({
       title: "Files uploaded",
       description: `${uploadedFiles.length} file(s) ready for deep code analysis`,
